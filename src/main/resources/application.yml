@@ -1,0 +1,35 @@
+server:
+  port: 8070
+
+spring:
+  application:
+    name: ApiGatewayWithEureka
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            -  id: service1
+               uri: lb://ApiGatewayWithEurekaMS1
+               predicates:
+                - Path=/service1/**
+                - Method=GET,POST
+               filters:
+                 - AddRequestHeader=Authorization, Basic dummy.jwt.token.YMLfile
+                 - AddResponseHeader=process-mode, Success
+            - id: service2
+              uri: lb://ApiGatewayWithEurekaMS2
+              predicates:
+               - Path=/service2/**
+              filters:
+                - AddRequestHeader=Authorization, Basic dummy.jwt.token.YMLfile
+                - AddResponseHeader=process-mode, Success
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${random.value}
+    prefer-ip-address: false
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
